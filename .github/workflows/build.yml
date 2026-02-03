@@ -1,0 +1,36 @@
+name: Build Windows EXE
+
+on:
+  push:
+    paths:
+      - 'main.py'
+      - '.github/workflows/build.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller PyQt5 pytesseract mss pillow
+
+      - name: 打包为 EXE
+        run: |
+          pyinstaller --noconsole --onefile main.py
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v3
+        with:
+          name: main-exe
+          path: dist/main.exe
